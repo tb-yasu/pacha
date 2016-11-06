@@ -1,7 +1,8 @@
 PACHA: Pairwise Chemical Aligner
 ====
 
-Overview
+## Overview
+PACHA - a chemical graph alignment software. 
 
 ## Description
 PACHA is a chemical graph alignment software. Given two chemical compounds represented as small graphs,
@@ -12,10 +13,16 @@ Main applications are reconstructions of metabolic pathway and virtual screening
 See [1] for detail. 
 
 ## Demo
+cd pacha/src
+make
+./pacha --input_file=../dat/target_compounds/ --output_file=output.txt
 
+--input_file=[DIR] : [DIR] is a directory including chemical graph files in the mol format. 
+--input_file=[FILE] : [FILE] is an output FILE
 ## VS. 
 
 ## Requirement
+GNU C++ compiler
 
 ## Usage
 
@@ -26,7 +33,6 @@ make
 
 ## Licence
 
-[MIT](https://github.com/tcnksm/tool/blob/master/LICENCE)
 
 ## Author
 
