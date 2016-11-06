@@ -14,11 +14,15 @@ See [1] for detail.
 
 ## Demo
 cd pacha/src
+
 make
+
 ./pacha --input_file=../dat/target_compounds/ --output_file=output.txt
 
 --input_file=[DIR] : [DIR] is a directory including chemical graph files in the mol format. 
+
 --input_file=[FILE] : [FILE] is an output FILE
+
 ## VS. 
 
 ## Requirement
