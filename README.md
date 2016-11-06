@@ -8,39 +8,49 @@ PACHA - a chemical graph alignment software.
 PACHA is a chemical graph alignment software. Given two chemical compounds represented as small graphs,
 PACHA outputs an alignment, a.k.a atom-atom mapping, between two compounds. Graph alignements are useful
 for building from a compound-compound pair a feature vector that can be used for an input of a machine learning,
-e.g., support vector machine.
-Main applications are reconstructions of metabolic pathway and virtual screening, etc.
+e.g., support vector machine. Main applications are reconstructions of metabolic pathway and virtual screening, etc.
 See [1] for detail. 
 
 ## Demo
+
 cd pacha/src
 
 make
 
-./pacha --input_file=../dat/target_compounds/ --output_file=output.txt
-
---input_file=[DIR] : [DIR] is a directory including chemical graph files in the mol format. 
-
---input_file=[FILE] : [FILE] is an output FILE
+./pacha --input_file=../dat/target_compounds/ --output_file=output.txt  
+output.txt includes alignment results between all pairs of cheical graphs in ../dat/target_compounds/
 
 ## VS. 
 
 ## Requirement
+
 GNU C++ compiler
 
 ## Usage
+usage: ./pacha --input_file=string --output_file=string [options] ...  
+options:  
+  -i, --input_file     input file name (string)  
+  -o, --output_file    output file name (string)  
+  -d, --dist           maximum distance for computing vertex features (unsigned long long [=5])  
+  -k, --topk           number of alignments starting from vertex pairs of topk matching scores (unsigned long long [=10])  
+  -n, --num_threads    # of threads (unsigned long long [=1])  
+  -t, --threshold      theshold (float [=0])  
+  -c, --inter_cuts     maximum number of intermolecular cuts (unsigned long long [=100000000])  
+  -a, --intra_cuts     maximum number of intramolecular cuts (unsigned long long [=100000000])  
+  -?, --help           print this message  
 
 ## Install
 
-cd pacha/src
+cd pacha/src  
 make
 
 ## Licence
 
+New BSD Licence
 
 ## Author
 
-Yasuo Tabei (yasuo.tabei@gmail.com)
+Yasuo Tabei (yasuo.tabei@gmail.com)  
 [tb-yasu](https://github.com/tb-yasu)
 
 ## Reference
