@@ -12,13 +12,10 @@ e.g., support vector machine. Main applications are reconstructions of metabolic
 See [1] for detail. 
 
 ## Demo
-
 cd pacha/src  
 make  
 ./pacha --input_file=../dat/target_compounds/ --output_file=output.txt  
 output.txt includes alignment results between all pairs of cheical graphs in ../dat/target_compounds/
-
-## VS. 
 
 ## Requirement
 
