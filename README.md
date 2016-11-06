@@ -19,7 +19,8 @@ output.txt includes alignment results between all pairs of cheical graphs in ../
 
 ## Requirement
 
-GNU C++ compiler
+GNU C++ compiler  
+Higher version is preferable if you use multiple threads. 
 
 ## Usage
 usage: ./pacha --input_file=string --output_file=string [options] ...  
