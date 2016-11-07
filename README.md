@@ -47,7 +47,7 @@ New BSD Licence
 ## Author
 
 Yasuo Tabei (yasuo.tabei@gmail.com)  
-[Homepage](https://sites.google.com/site/yasuotabei/)
+[Homepage](https://sites.google.com/site/yasuotabei/)  
 [tb-yasu](https://github.com/tb-yasu)
 
 ## Reference
