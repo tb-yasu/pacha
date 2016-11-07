@@ -7,8 +7,8 @@ PACHA - a chemical graph alignment software.
 ## Description
 PACHA is a chemical graph alignment software. Given two chemical compounds represented as small graphs,
 PACHA outputs an alignment, a.k.a atom-atom mapping, between two compounds. Graph alignements are useful
-for building from a compound-compound pair a feature vector that can be used for an input of a machine learning,
-e.g., support vector machine. Main applications are reconstructions of metabolic pathway and virtual screening, etc.
+for building from a compound-compound pair a feature vector that can be used for an input of machine learning,
+e.g., support vector machine. Main applications are reconstructions of metabolic pathway, virtual screening and so forth.
 See [1] for detail. 
 
 ## Demo
