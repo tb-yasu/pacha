@@ -73,12 +73,8 @@ private:
   void read(std::istream &is);
   void compMatchingVertex(Graph &g1, Graph &g2, std::vector<std::map<uint32_t, float> > &fvs1, std::vector<std::map<uint32_t, float> > &fvs2, std::map<std::pair<uint32_t, uint32_t>, float> &simmat);
   void compFeatureVec(Graph &g, uint64_t dist, std::vector<std::map<uint32_t, float> > &fvs);
-  void initNodeLabels1(Graph &g, std::vector<uint64_t> &nodeLabels, std::vector<std::map<uint32_t, float> > &fvs);
-  void initNodeLabels2(Graph &g, std::vector<uint64_t> &nodeLabels, std::vector<std::map<uint32_t, float> > &fvs);
-  void initNodeLabels3(Graph &g, std::vector<uint64_t> &nodeLabels, std::vector<std::map<uint32_t, float> > &fvs);
-  void compFeature1(uint64_t vid, Graph &g, std::vector<uint64_t> &nodeLabels, std::map<uint32_t, float> &fv);
-  void compFeature2(uint64_t vid, Graph &g, std::vector<uint64_t> &nodeLabels, std::map<uint32_t, float> &fv);
-  void compFeature3(uint64_t vid, Graph &g, std::vector<uint64_t> &nodeLabels, std::map<uint32_t, float> &fv);
+  void initNodeLabels(Graph &g, uint64_t length, std::vector<uint64_t> &nodeLabels, std::vector<std::map<uint32_t, float> > &fvs);
+  void compFeature(uint64_t vid, uint64_t length, Graph &g, std::vector<uint64_t> &nodeLabels, std::map<uint32_t, float> &fv);
   float compCos(std::map<uint32_t, float> &fv1, std::map<uint32_t, float> &fv2);
   float compJaccard(std::map<uint32_t, float> &fv1, std::map<uint32_t, float> &fv2);
   void compAlignment(Graph &g1, Graph &g2, std::map<std::pair<uint32_t, uint32_t>, float> &simmat, float &rscore, std::vector<std::pair<uint32_t, uint32_t> > &matchPair);
@@ -88,8 +84,10 @@ private:
   bool check1(std::vector<std::pair<uint32_t, std::string> > &tmp1, std::vector<std::pair<uint32_t, std::string> > &tmp2, uint64_t &counter);
   bool check2(std::vector<std::pair<uint32_t, std::string> > &tmp1, std::vector<std::pair<uint32_t, std::string> > &tmp2, uint64_t &counter);
   float calcTanimoto(Graph &g1, Graph &g2, std::vector<std::pair<uint32_t, uint32_t> > &matchPair);
+  void updateVertexLabels(uint64_t length, Graph &g, std::vector<uint64_t> &nodeLabels);
   void print(std::ostream &os, std::vector<std::pair<std::pair<std::string, std::pair<uint64_t, uint64_t> >, std::pair<std::string, std::pair<uint64_t, uint64_t> > > > &res);
   void print(std::ostream &os, std::vector<std::pair<std::string, std::pair<uint64_t, uint64_t> > > &res);
+  
 public:
   void run(std::string input_file, std::string output_file, uint64_t dist, uint64_t topk, float threshold, uint64_t num_threads, uint64_t inter_cuts, uint64_t intra_cuts);
 private:

@@ -51,11 +51,11 @@ void Pacha::read(istream &is) {
   }
 }
 
-void Pacha::initNodeLabels1(Graph &g, vector<uint64_t> &nodeLabels, vector<map<uint32_t, float> > &fvs) {
+void Pacha::initNodeLabels(Graph &g, uint64_t length, vector<uint64_t> &nodeLabels, vector<map<uint32_t, float> > &fvs) {
   nodeLabels.resize(g.size());
   for (size_t vid = 0; vid < nodeLabels.size(); ++vid) {
     stringstream ss;
-    ss << g[vid].label[0] << "_";
+    ss << g[vid].label.substr(0, length) << "_";
     if (p2c.find(ss.str()) == p2c.end()) {
       p2c[ss.str()] = countPass;
       #ifdef _PARALLEL_
@@ -64,7 +64,11 @@ void Pacha::initNodeLabels1(Graph &g, vector<uint64_t> &nodeLabels, vector<map<u
       countPass++;
     }
 
-    nodeLabels[vid] = p2c[ss.str()];
+    uint64_t label = p2c[ss.str()];
+    nodeLabels[vid] = label;
+    if (g[vid].tmpLabels.size() <= length)
+      g[vid].tmpLabels.resize(length + 1);
+    g[vid].tmpLabels[length] = label; 
     map<uint32_t, float> &fv = fvs[vid];
     map<uint32_t, float>::iterator it = fv.find(p2c[ss.str()]);
     if (it == fv.end()) 
@@ -74,108 +78,14 @@ void Pacha::initNodeLabels1(Graph &g, vector<uint64_t> &nodeLabels, vector<map<u
   }
 }
 
-void Pacha::initNodeLabels2(Graph &g, vector<uint64_t> &nodeLabels, vector<map<uint32_t, float> > &fvs) {
-  nodeLabels.resize(g.size());
-  for (size_t vid = 0; vid < nodeLabels.size(); ++vid) {
-    stringstream ss;
-    ss << g[vid].label.substr(0, 2);
-    if (p2c.find(ss.str()) == p2c.end()) {
-      p2c[ss.str()] = countPass;
-      #ifdef _PARALLEL_
-      #pragma omp atomic
-      #endif
-      countPass++;
-    }
-
-    nodeLabels[vid] = p2c[ss.str()];
-    map<uint32_t, float> &fv = fvs[vid];
-    map<uint32_t, float>::iterator it = fv.find(p2c[ss.str()]);
-    if (it == fv.end()) 
-      fv[p2c[ss.str()]] = 1;
-    else 
-      it->second += 1;
-  }
-}
-
-void Pacha::initNodeLabels3(Graph &g, vector<uint64_t> &nodeLabels, vector<map<uint32_t, float> > &fvs) {
-  nodeLabels.resize(g.size());
-  for (size_t vid = 0; vid < nodeLabels.size(); ++vid) {
-    stringstream ss;
-    ss << g[vid].label;
-    if (p2c.find(ss.str()) == p2c.end()) {
-      p2c[ss.str()] = countPass;
-      #ifdef _PARALLEL_
-      #pragma omp atomic
-      #endif
-      countPass++;
-    }
-
-    nodeLabels[vid] = p2c[ss.str()];
-    map<uint32_t, float> &fv = fvs[vid];
-    map<uint32_t, float>::iterator it = fv.find(p2c[ss.str()]);
-    if (it == fv.end()) 
-      fv[p2c[ss.str()]] = 1;
-    else 
-      it->second += 1;
-  }
-}
-
-void Pacha::compFeature1(uint64_t vid, Graph &g, vector<uint64_t> &nodeLabels, map<uint32_t, float> &fv) {
+void Pacha::compFeature(uint64_t vid, uint64_t length, Graph &g, vector<uint64_t> &nodeLabels, map<uint32_t, float> &fv) {
   stringstream ss;
-  ss << nodeLabels[vid];
+  //  ss << nodeLabels[vid];
+  ss << g[vid].tmpLabels[length];
   for (size_t i = 0; i < g[vid].edge.size(); ++i)  {
     uint64_t toid = g[vid].edge[i].to;
-    ss << "_" << g[toid].label[0];
-  }
-
-  if (p2c.find(ss.str()) == p2c.end()) {
-    #ifdef _PARALLEL_
-    #pragma omp critical
-    #endif
-    {
-    p2c[ss.str()] = countPass++;
-    }
-  }
-    
-  nodeLabels[vid] = p2c[ss.str()];
-  map<uint32_t, float>::iterator it = fv.find(p2c[ss.str()]);
-  if (it == fv.end()) 
-    fv[p2c[ss.str()]] = 1;
-  else 
-    it->second += 1;
-}
-
-void Pacha::compFeature2(uint64_t vid, Graph &g, vector<uint64_t> &nodeLabels, map<uint32_t, float> &fv) {
-  stringstream ss;
-  ss << nodeLabels[vid];
-  for (size_t i = 0; i < g[vid].edge.size(); ++i)  {
-    uint64_t toid = g[vid].edge[i].to;
-    ss << "_" << g[toid].label.substr(0, 2);
-  }
-  
-  if (p2c.find(ss.str()) == p2c.end()) {
-    #ifdef _PARALLEL_
-    #pragma omp critical
-    #endif
-    {
-    p2c[ss.str()] = countPass++;
-    }
-  }
-    
-  nodeLabels[vid] = p2c[ss.str()];
-  map<uint32_t, float>::iterator it = fv.find(p2c[ss.str()]);
-  if (it == fv.end()) 
-    fv[p2c[ss.str()]] = 1;
-  else 
-    it->second += 1;
-}
-
-void Pacha::compFeature3(uint64_t vid, Graph &g, vector<uint64_t> &nodeLabels, map<uint32_t, float> &fv) {
-  stringstream ss;
-  ss << nodeLabels[vid];
-  for (size_t i = 0; i < g[vid].edge.size(); ++i)  {
-    uint64_t toid = g[vid].edge[i].to;
-    ss << "_" << g[toid].label;
+    //ss << "_" << g[toid].label.substr(0, length);
+    ss << "_" << g[toid].tmpLabels[length];
   }
 
   if (p2c.find(ss.str()) == p2c.end()) {
@@ -187,12 +97,18 @@ void Pacha::compFeature3(uint64_t vid, Graph &g, vector<uint64_t> &nodeLabels, m
     }
   }
 
-  nodeLabels[vid] = p2c[ss.str()];
-  map<uint32_t, float>::iterator it = fv.find(p2c[ss.str()]);
+  uint64_t label  = p2c[ss.str()];
+  nodeLabels[vid] = label;
+  map<uint32_t, float>::iterator it = fv.find(label);
   if (it == fv.end()) 
     fv[p2c[ss.str()]] = 1;
   else 
     it->second += 1;
+}
+
+void Pacha::updateVertexLabels(uint64_t length, Graph &g, vector<uint64_t> &nodeLabels) {
+  for (size_t vid = 0; vid < g.size(); ++vid) 
+    g[vid].tmpLabels[length] = nodeLabels[vid];
 }
 
 void Pacha::compFeatureVec(Graph &g, uint64_t dist, vector<map<uint32_t, float> > &fvs) {
@@ -200,15 +116,20 @@ void Pacha::compFeatureVec(Graph &g, uint64_t dist, vector<map<uint32_t, float> 
   vector<uint64_t> nodeLabels1;
   vector<uint64_t> nodeLabels2;
   vector<uint64_t> nodeLabels3;
-  initNodeLabels1(g, nodeLabels1, fvs);
-  initNodeLabels2(g, nodeLabels2, fvs);
-  initNodeLabels3(g, nodeLabels3, fvs);
+  initNodeLabels(g, 1, nodeLabels1, fvs);
+  initNodeLabels(g, 2, nodeLabels2, fvs);
+  initNodeLabels(g, 3, nodeLabels3, fvs);
   for (size_t iter = 0; iter < dist; ++iter)  {
     for (size_t vid = 0; vid < g.size(); ++vid) {
       map<uint32_t, float> &fv = fvs[vid];
-      compFeature1(vid, g, nodeLabels1, fv);
-      compFeature2(vid, g, nodeLabels2, fv);
-      compFeature3(vid, g, nodeLabels3, fv);
+      compFeature(vid, 1, g, nodeLabels1, fv);
+      compFeature(vid, 2, g, nodeLabels2, fv);
+      compFeature(vid, 3, g, nodeLabels3, fv);
+    }
+    for (size_t vid = 0; vid < g.size(); ++vid) {
+      updateVertexLabels(1, g, nodeLabels1);
+      updateVertexLabels(2, g, nodeLabels2);
+      updateVertexLabels(3, g, nodeLabels3);
     }
   }
 }
@@ -491,7 +412,6 @@ void Pacha::run(string input_file, string output_file, uint64_t dist, uint64_t t
   }
 
   double start = gettimeofday_sec();
-
   for (size_t i = 0; i < TRANS.size(); ++i) {
     Graph &g1 = TRANS[i];
     vector<map<uint32_t, float> > fvs1;

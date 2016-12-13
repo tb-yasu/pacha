@@ -50,6 +50,8 @@ public:
   std::string label;
   std::vector<Edge> edge;
 
+  std::vector<uint64_t> tmpLabels;
+  
   bool neighbor(uint32_t to) {
     for (size_t i = 0; i < edge.size(); ++i) {
       if (edge[i].to == to)
