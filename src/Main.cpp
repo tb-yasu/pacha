@@ -42,6 +42,7 @@ int main(int argc, char **argv) {
   cmdline::parser p;
   p.add<string>("input_file",  'i', "input file name", true);
   p.add<string>("output_file", 'o', "output file name", true);
+  p.add<string>("pair_file", 's', "pair file name", false, "");
   p.add<uint64_t>("dist", 'd', "maximum distance for computing vertex features", false, 5);
   p.add<uint64_t>("topk", 'k', "number of alignments starting from vertex pairs of topk matching scores", false, 10);
   p.add<uint64_t>("num_threads", 'n', "# of threads", false, 1); 
@@ -51,6 +52,7 @@ int main(int argc, char **argv) {
   p.parse_check(argc, argv);
   const string input_file  = p.get<string>("input_file");
   const string output_file = p.get<string>("output_file");
+  const string pair_file   = p.get<string>("pair_file");
   uint64_t dist = p.get<uint64_t>("dist");
   uint64_t topk = p.get<uint64_t>("topk");
   uint64_t num_threads = p.get<uint64_t>("num_threads");
@@ -58,10 +60,13 @@ int main(int argc, char **argv) {
   uint64_t inter_cuts = p.get<uint64_t>("inter_cuts");
   uint64_t intra_cuts = p.get<uint64_t>("intra_cuts");
 
-  version("2.1.3");
+  version("3.0.0");
 
   Pacha pacha;
-  pacha.run(input_file, output_file, dist, topk, threshold, num_threads, inter_cuts, intra_cuts);
+  if (pair_file == "") 
+    pacha.run(input_file, output_file, dist, topk, threshold, num_threads, inter_cuts, intra_cuts);
+  else
+    pacha.run_use_pair(input_file, output_file, pair_file, dist, topk, threshold, num_threads, inter_cuts, intra_cuts);
 }
 
 

@@ -51,6 +51,18 @@ void Pacha::read(istream &is) {
   }
 }
 
+void Pacha::readPairFile(istream &is, set<pair<string, string> > &pairs) {
+  string line;
+  while (getline(is, line)) {
+    stringstream ss(line);
+    string name1, name2;
+    ss >> name1;
+    ss >> name2;
+    pairs.insert(make_pair(name1, name2));
+    pairs.insert(make_pair(name2, name1));
+  }
+}
+
 void Pacha::initNodeLabels(Graph &g, uint64_t length, vector<uint64_t> &nodeLabels, vector<map<uint32_t, float> > &fvs) {
   nodeLabels.resize(g.size());
   for (size_t vid = 0; vid < nodeLabels.size(); ++vid) {
@@ -383,6 +395,7 @@ float Pacha::calcTanimoto(Graph &g1, Graph &g2, vector<pair<uint32_t, uint32_t> 
 
 void Pacha::run(string input_file, string output_file, uint64_t dist, uint64_t topk, float threshold, uint64_t num_threads, uint64_t inter_cuts, uint64_t intra_cuts) {
   topk_ = topk;
+  
   DIR* dir;
   struct dirent* dp;
   vector<string> names;
@@ -425,6 +438,103 @@ void Pacha::run(string input_file, string output_file, uint64_t dist, uint64_t t
     #endif
     for (size_t j = i + 1; j < TRANS.size(); ++j) {
       Graph &g2 = TRANS[j];
+      vector<map<uint32_t, float> > fvs2;
+      compFeatureVec(g2, dist, fvs2);
+      
+      map<pair<uint32_t, uint32_t>, float> simmat;
+      compMatchingVertex(g1, g2, fvs1, fvs2, simmat);
+      float rscore = 0.f;
+      vector<pair<uint32_t, uint32_t> > matchPair;
+      compAlignment(g1, g2, simmat, rscore, matchPair);
+
+      float sim = calcTanimoto(g1, g2, matchPair);
+      if (sim >= threshold) {
+	vector<pair<pair<string, pair<uint64_t, uint64_t> >, pair<string, pair<uint64_t, uint64_t> > > > res1;
+	postProcess1(g1, g2, matchPair, res1);
+	if (res1.size() <= intra_cuts) {
+	  vector<pair<string, pair<uint64_t, uint64_t> > > res2;
+	  postProcess2(g1, g2, matchPair, res2);
+	  if (res2.size() <= inter_cuts) {
+            #ifdef _PARALLEL_
+            #pragma omp critical
+            #endif
+            {
+              print(ofs, g1, g2, rscore, matchPair);
+              ofs << "Tanimoto similarity: " << sim << endl;
+              print(ofs, res1);
+              print(ofs, res2);
+              ofs << endl;
+            }
+          }
+	}
+      }
+    }
+  }
+  ofs.close();
+  double end = gettimeofday_sec();
+  cout << "CPU time = " << end - start << " sec." << endl;
+}
+
+void Pacha::run_use_pair(string input_file, string output_file, string pair_file, uint64_t dist, uint64_t topk, float threshold, uint64_t num_threads, uint64_t inter_cuts, uint64_t intra_cuts) {
+  topk_ = topk;
+
+  set<pair<string, string> > pairs;
+  {
+    ifstream ifs(pair_file.c_str());
+    if (!ifs) {
+      cerr << "cannot open: " << pair_file << endl;
+      exit(1);
+    }
+    readPairFile(ifs, pairs);
+    ifs.close();
+  }
+  
+  DIR* dir;
+  struct dirent* dp;
+  vector<string> names;
+  if (NULL == (dir = opendir(input_file.c_str()))){
+    cerr << "Directory Open Error." << endl;
+    exit(1);
+  }
+  for(size_t i = 0; NULL != (dp = readdir(dir)); ++i) {
+    printf("%ld:%s\n" , i , dp->d_name);
+    if (!strcmp(dp->d_name, "."))  continue;
+    if (!strcmp(dp->d_name, "..")) continue;
+    string d_name(dp->d_name);
+    string target = input_file + d_name;
+    ifstream ifs(target.c_str());
+    if (!ifs) {
+      cerr << "cannot open: " << input_file << endl;
+      exit(-1);
+    }
+    read(ifs);
+    ifs.close();
+  }
+
+  ofstream ofs(output_file.c_str());
+  if (!ofs) {
+    cerr << "cannot open: " << output_file << endl;
+    exit(-1);
+  }
+
+  double start = gettimeofday_sec();
+  for (size_t i = 0; i < TRANS.size(); ++i) {
+    Graph &g1 = TRANS[i];
+    string &name1 = g1.name;
+    vector<map<uint32_t, float> > fvs1;
+    compFeatureVec(g1, dist, fvs1);
+    
+    #ifdef _PARALLEL_
+      omp_set_num_threads(num_threads);
+    #endif
+    #ifdef _PARALLEL_
+      #pragma omp parallel for schedule(static)
+    #endif
+    for (size_t j = i + 1; j < TRANS.size(); ++j) {
+      Graph &g2 = TRANS[j];
+      string &name2 = g2.name;
+      if (pairs.find(make_pair(name1, name2)) == pairs.end())
+	  continue;
       vector<map<uint32_t, float> > fvs2;
       compFeatureVec(g2, dist, fvs2);
       

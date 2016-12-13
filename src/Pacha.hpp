@@ -71,6 +71,7 @@ public:
 class Pacha {
 private:
   void read(std::istream &is);
+  void readPairFile(std::istream &is, std::set<std::pair<std::string, std::string> > &pairs);
   void compMatchingVertex(Graph &g1, Graph &g2, std::vector<std::map<uint32_t, float> > &fvs1, std::vector<std::map<uint32_t, float> > &fvs2, std::map<std::pair<uint32_t, uint32_t>, float> &simmat);
   void compFeatureVec(Graph &g, uint64_t dist, std::vector<std::map<uint32_t, float> > &fvs);
   void initNodeLabels(Graph &g, uint64_t length, std::vector<uint64_t> &nodeLabels, std::vector<std::map<uint32_t, float> > &fvs);
@@ -87,9 +88,9 @@ private:
   void updateVertexLabels(uint64_t length, Graph &g, std::vector<uint64_t> &nodeLabels);
   void print(std::ostream &os, std::vector<std::pair<std::pair<std::string, std::pair<uint64_t, uint64_t> >, std::pair<std::string, std::pair<uint64_t, uint64_t> > > > &res);
   void print(std::ostream &os, std::vector<std::pair<std::string, std::pair<uint64_t, uint64_t> > > &res);
-  
 public:
   void run(std::string input_file, std::string output_file, uint64_t dist, uint64_t topk, float threshold, uint64_t num_threads, uint64_t inter_cuts, uint64_t intra_cuts);
+  void run_use_pair(std::string input_file, std::string output_file, std::string pair_file, uint64_t dist, uint64_t topk, float threshold, uint64_t num_threads, uint64_t inter_cuts, uint64_t intra_cuts);
 private:
   std::vector<Graph> TRANS;
   static std::map<std::string, uint64_t> p2c;
